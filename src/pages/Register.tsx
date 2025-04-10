@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { SidebarLayout } from '@/components/ui/sidebar-layout';
@@ -10,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { useSupabase } from '@/hooks/useSupabase';
 
 export interface DetailedUserData {
   id: string;
@@ -27,6 +27,8 @@ export interface DetailedUserData {
 const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { saveUser, loading } = useSupabase();
+  
   const [formData, setFormData] = useState({
     name: '',
     sex: '',
@@ -57,7 +59,7 @@ const Register = () => {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Simple validation
@@ -77,17 +79,24 @@ const Register = () => {
       createdAt: new Date().toISOString(),
     };
 
-    // Store in localStorage for demonstration
-    const existingUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
-    localStorage.setItem('registeredUsers', JSON.stringify([...existingUsers, userData]));
-    
-    toast({
-      title: "Registration Successful",
-      description: "Your information has been registered successfully.",
-    });
+    // Save to Supabase
+    const { success, error } = await saveUser(userData);
 
-    // Navigate to QR code page
-    navigate('/qr-code', { state: { userData } });
+    if (success) {
+      toast({
+        title: "Registration Successful",
+        description: "Your information has been registered successfully.",
+      });
+
+      // Navigate to QR code page
+      navigate('/qr-code', { state: { userData } });
+    } else {
+      toast({
+        title: "Registration Failed",
+        description: error || "There was a problem registering. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
