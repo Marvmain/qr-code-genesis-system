@@ -3,11 +3,13 @@ import React, { useEffect, useState } from 'react';
 import QRCode from 'qrcode';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserData } from './RegistrationForm';
 import { useToast } from "@/components/ui/use-toast";
+import { DetailedUserData } from '@/pages/Register';
+import { UserData } from './RegistrationForm';
+import { Download } from 'lucide-react';
 
 interface QRCodeGeneratorProps {
-  userData: UserData | null;
+  userData: DetailedUserData | UserData | null;
 }
 
 const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ userData }) => {
@@ -20,7 +22,7 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ userData }) => {
     }
   }, [userData]);
 
-  const generateQRCode = async (data: UserData) => {
+  const generateQRCode = async (data: DetailedUserData | UserData) => {
     try {
       // Create a JSON string from the user data
       const dataString = JSON.stringify(data);
@@ -68,14 +70,14 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ userData }) => {
   }
 
   return (
-    <Card className="w-full max-w-md mx-auto animate-fade-in">
+    <Card className="w-full max-w-md mx-auto animate-fade-in shadow-md">
       <CardHeader>
         <CardTitle>Your QR Code</CardTitle>
         <CardDescription>Scan this QR code to access your information.</CardDescription>
       </CardHeader>
       <CardContent className="flex justify-center">
         {qrCodeUrl ? (
-          <div className="p-4 bg-white rounded-lg shadow-sm">
+          <div className="p-4 bg-white rounded-lg shadow-sm border border-gray-100">
             <img 
               src={qrCodeUrl} 
               alt="QR Code" 
@@ -92,8 +94,9 @@ const QRCodeGenerator: React.FC<QRCodeGeneratorProps> = ({ userData }) => {
         <Button 
           onClick={downloadQRCode} 
           disabled={!qrCodeUrl}
-          className="w-full md:w-auto"
+          className="w-full md:w-auto gap-2"
         >
+          <Download size={18} />
           Download QR Code
         </Button>
       </CardFooter>
